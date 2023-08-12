@@ -1,1 +1,5 @@
+# add to global .gitignore later
 /test
+
+# ignore user data
+.data
