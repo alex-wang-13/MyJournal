@@ -6,6 +6,8 @@ import constants as cons
 
 # Initialize database.
 data = db.DB()
+# Hold the last entry selection.
+selection = None
 
 def refresh() -> None:
     sidebar.delete(0, tk.END)
@@ -25,15 +27,29 @@ def delete_entry(_) -> None:
     data.remove_entry(len(data.entries)-1)
     refresh()
 
-def load_entry(_) -> None:
+def update_selection(_):
+    global selection
+
     all_items = sidebar.get(0, tk.END)
     sel_index = sidebar.curselection()
-    sel_item = all_items[sel_index[0]]
+    selection = all_items[sel_index[0]].strip()
+
+def load_entry(_) -> None:
+    update_selection(_)
+    
+    text_area.delete(1.0)
 
     # Remove the \n character to open correctly.
-    with open(os.path.join(cons.DATA_FOLDER_PATH, sel_item[:-1])) as file:
-        for line in file:
-            text_area.insert(tk.END, line)
+    with open(os.path.join(cons.DATA_FOLDER_PATH, selection)) as file:
+        # Delete auto new line.
+        text_area.replace(1.0, tk.END, file.read()[:-1])
+
+def save_entry(_) -> None:
+    global selection
+
+    if selection is not None:
+        with open(os.path.join(cons.DATA_FOLDER_PATH, selection), "w") as file:
+            file.write(text_area.get(1.0, tk.END))
 
 # Create the table.
 root = tk.Tk()
@@ -46,7 +62,8 @@ root.title("MyJournal")
 
 # Create sidebar.
 sidebar = tk.Listbox(root, exportselection=False, width=50)
-sidebar.bind("<<ListboxSelect>>", func=load_entry)
+sidebar.bind("<<ListboxSelect>>", func=save_entry, add="+")
+sidebar.bind("<<ListboxSelect>>", func=load_entry, add="+")
 sidebar.pack(side=tk.LEFT, fill=tk.BOTH)
 refresh()
 
