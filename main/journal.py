@@ -7,24 +7,24 @@ import constants as cons
 # Initialize database.
 data = db.DB()
 # Hold the last entry selection.
-selection = None
+selection: str | None = None
 
 def refresh() -> None:
     sidebar.delete(0, tk.END)
-
+    print("hi")
     for path in data.entries.values():
         sidebar.insert(tk.END, path)
 
 def get_now_str() -> str:
     now: dt.datetime = dt.datetime.now()
-    return "".join([now.strftime("%a--%d-%m-%Y--%I-%M-%S-%f")[:-2], now.strftime("--%p")])
+    return "".join([now.strftime("%a--%d-%m-%Y--%I-%M-%S-%f")[:-2], now.strftime("-%p")])
 
 def add_entry(_) -> None:
     data.add_entry(len(data.entries), path=get_now_str())
     refresh()
 
 def delete_entry(_) -> None:
-    data.remove_entry(len(data.entries)-1)
+    data.remove_entry(del_entry.get().strip())
     refresh()
 
 def update_selection(_):
@@ -79,6 +79,10 @@ add_entry_btn = tk.Button(topleft_frame, text="Add Entry", width=10)
 add_entry_btn.bind("<Button-1>", func=add_entry)
 add_entry_btn.pack(side=tk.TOP, pady=10)
 add_entry_btn.configure(bg="lightblue")
+
+# Delete entry specifier.
+del_entry: tk.Entry = tk.Entry(topleft_frame, bg="lightgrey")
+del_entry.pack(side=tk.BOTTOM)
 
 del_entry_btn = tk.Button(topleft_frame, text="Delete Entry", width=10)
 del_entry_btn.bind("<Button-1>", func=delete_entry)
