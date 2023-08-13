@@ -1,5 +1,7 @@
 import constants as cons
 
+import os
+
 class DB:
     def __init__(self) -> None:
         """
@@ -18,13 +20,16 @@ class DB:
     def get_entry(self, id: int) -> str:
         return self.entries.get(id)
 
-    #TODO add entry ids automatically.
     def add_entry(self, id: int, path: str) -> None:
         if self.get_entry(id) is None:
             self.entries[id] = path
 
             with open(cons.USR_CNSTS_PATH, "a") as file:
                 file.writelines("".join([path, "\n"]))
+
+            # Create file.
+            with open(os.path.join(cons.DATA_FOLDER_PATH, path), mode="x") as file:
+                pass
 
     def remove_entry(self, id: int) -> str:
         if self.get_entry(id) is not None:

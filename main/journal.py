@@ -1,5 +1,8 @@
 import tkinter as tk
+import datetime as dt
 import db
+import os
+import constants as cons
 
 # Initialize database.
 data = db.DB()
@@ -10,13 +13,27 @@ def refresh() -> None:
     for path in data.entries.values():
         sidebar.insert(tk.END, path)
 
+def get_now_str() -> str:
+    now: dt.datetime = dt.datetime.now()
+    return "".join([now.strftime("%a--%d-%m-%Y--%I-%M-%S-%f")[:-2], now.strftime("--%p")])
+
 def add_entry(_) -> None:
-    data.add_entry(len(data.entries), path="".join(["test", str(len(data.entries))]))
+    data.add_entry(len(data.entries), path=get_now_str())
     refresh()
 
 def delete_entry(_) -> None:
     data.remove_entry(len(data.entries)-1)
     refresh()
+
+def load_entry(_) -> None:
+    all_items = sidebar.get(0, tk.END)
+    sel_index = sidebar.curselection()
+    sel_item = all_items[sel_index[0]]
+
+    # Remove the \n character to open correctly.
+    with open(os.path.join(cons.DATA_FOLDER_PATH, sel_item[:-1])) as file:
+        for line in file:
+            text_area.insert(tk.END, line)
 
 # Create the table.
 root = tk.Tk()
@@ -28,7 +45,8 @@ root.configure(bg="lightgrey")
 root.title("MyJournal")
 
 # Create sidebar.
-sidebar = tk.Listbox(root)
+sidebar = tk.Listbox(root, exportselection=False, width=50)
+sidebar.bind("<<ListboxSelect>>", func=load_entry)
 sidebar.pack(side=tk.LEFT, fill=tk.BOTH)
 refresh()
 
