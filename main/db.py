@@ -38,7 +38,13 @@ class DB:
             with open(cons.USR_CNSTS_PATH, "r") as file:
                 lines: list[str] = file.readlines()
 
-            filtered_lines: list[str] = [line for line in lines if word not in line]
+            # Remove the requested file.
+            filtered_lines: list[str] = []
+            for line in lines:
+                if word not in line:
+                    filtered_lines.append(line)
+                else:
+                    os.remove(os.path.join(cons.DATA_FOLDER_PATH, line[:-1]))
 
             with open(cons.USR_CNSTS_PATH, "w") as file:
                 file.writelines(filtered_lines)
